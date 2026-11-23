@@ -1,0 +1,11 @@
+{
+  "required": ["response"],
+  "unique_id": false,
+  "ratings": {
+    "helpfulness": {"required": true, "numeric": true, "integer": true, "range": [0, 4]},
+    "correctness": {"required": true, "numeric": true, "integer": true, "range": [0, 4]},
+    "coherence": {"required": true, "numeric": true, "integer": true, "range": [0, 4]},
+    "complexity": {"required": true, "numeric": true, "integer": true, "range": [0, 4]},
+    "verbosity": {"required": true, "numeric": true, "integer": true, "range": [0, 4]}
+  }
+}

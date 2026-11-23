@@ -1,0 +1,8 @@
+[
+  {
+    "prompt": "A customer asks how to change their email address. Write a two-sentence reply. The customer must update the address in Settings under Email, then click the confirmation link sent to the new address.",
+    "response": "I understand you want to update your email address. Open Settings, choose Email, and enter your new address.",
+    "resolution_score": null,
+    "tone_score": null
+  }
+]

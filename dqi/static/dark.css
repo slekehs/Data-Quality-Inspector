@@ -1,0 +1,221 @@
+/* The theme preference is resolved on <html> before the first paint. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --dqi-bg: #10191f;
+  --dqi-panel: #18252d;
+  --dqi-raised: #24343e;
+  --dqi-field: #111d24;
+  --dqi-ink: #edf3f5;
+  --dqi-muted: #afc0c9;
+  --dqi-disabled-ink: #97a9b2;
+  --dqi-line: #364a55;
+  --dqi-control-line: #778e99;
+  --dqi-accent: #76d9c0;
+  --dqi-accent-hover: #99ead4;
+  --dqi-accent-bg: #173a33;
+  --dqi-accent-line: #477268;
+  --dqi-on-accent: #0b3029;
+  --dqi-focus: #91e7ff;
+  --dqi-success: #a5e6bf;
+  --dqi-success-bg: #1e382e;
+  --dqi-warning: #ffd18c;
+  --dqi-warning-bg: #3e3020;
+  --dqi-danger: #ffb3ab;
+  --dqi-danger-bg: #402a2c;
+  --dqi-danger-line: #925b5b;
+
+  /* Shared by the shell, cards, walkthrough and settings. */
+  --bg: var(--dqi-bg);
+  --surface: var(--dqi-panel);
+  --ink: var(--dqi-ink);
+  --muted: var(--dqi-muted);
+  --border: var(--dqi-line);
+  --teal: var(--dqi-accent);
+  --teal-hover: var(--dqi-accent-hover);
+  --teal-soft: var(--dqi-accent-bg);
+  --amber: var(--dqi-warning);
+  --danger: var(--dqi-danger);
+  --shadow: 0 3px 16px rgb(0 0 0 / 14%);
+}
+
+:root[data-theme="dark"] ::selection {
+  background: var(--dqi-accent);
+  color: var(--dqi-on-accent);
+}
+
+:root[data-theme="dark"] .brand-mark,
+:root[data-theme="dark"] .step.active .step-number,
+:root[data-theme="dark"] .button.primary {
+  color: var(--dqi-on-accent);
+}
+
+:root[data-theme="dark"] .button.secondary {
+  border-color: var(--dqi-control-line);
+}
+
+:root[data-theme="dark"] :is(.button.secondary, .button.quiet):not(:disabled):hover {
+  background-color: var(--dqi-raised);
+}
+
+:root[data-theme="dark"] .button.secondary:not(:disabled):hover {
+  border-color: var(--dqi-accent);
+}
+
+:root[data-theme="dark"] .button:disabled {
+  background: var(--dqi-raised);
+  border-color: var(--dqi-line);
+  color: var(--dqi-disabled-ink);
+  opacity: 1;
+}
+
+:root[data-theme="dark"] .step:disabled {
+  color: var(--dqi-disabled-ink);
+  opacity: 1;
+}
+
+:root[data-theme="dark"] :is(.tag, th, .empty-rules, .coverage-note, .review-record summary) {
+  background: var(--dqi-raised);
+}
+
+/* Cover text, password and number inputs in the dataset and single-task forms. */
+:root[data-theme="dark"] :is(select, textarea, input:not([type=file]):not([type=checkbox])),
+:root[data-theme="dark"] #opinion-form input:not([type=checkbox]) {
+  background-color: var(--dqi-field);
+  border-color: var(--dqi-control-line);
+  color: var(--dqi-ink);
+}
+
+:root[data-theme="dark"] select {
+  appearance: auto;
+  background-image: none;
+  padding-inline-end: .65rem;
+}
+
+:root[data-theme="dark"] ::placeholder {
+  color: var(--dqi-muted);
+  opacity: 1;
+}
+
+:root[data-theme="dark"] :is(select, textarea, input:not([type=file]):not([type=checkbox])):disabled {
+  color: var(--dqi-disabled-ink);
+  border-color: var(--dqi-line);
+}
+
+:root[data-theme="dark"] :is(button, a, input, select, textarea, summary):focus-visible,
+:root[data-theme="dark"] .file-picker:focus-within {
+  outline: 3px solid var(--dqi-focus);
+}
+
+/* File selection and configuration */
+:root[data-theme="dark"] .dropzone {
+  background: #142a29;
+  border-color: var(--dqi-control-line);
+}
+
+:root[data-theme="dark"] .dropzone.dragging {
+  background: var(--dqi-accent-bg);
+  border-color: var(--dqi-accent);
+}
+
+:root[data-theme="dark"] .file-illustration {
+  background: var(--dqi-panel);
+  border-color: var(--dqi-accent);
+  box-shadow: 5px 5px 0 var(--dqi-accent-line);
+}
+
+:root[data-theme="dark"] .file-illustration span { background: var(--dqi-accent); }
+
+:root[data-theme="dark"] :is(.sample-card, .file-strip, .audit-overview) {
+  background: var(--dqi-accent-bg);
+  border-color: var(--dqi-accent-line);
+}
+
+:root[data-theme="dark"] .sample-card p:not(.eyebrow) { color: var(--dqi-muted); }
+
+:root[data-theme="dark"] .file-chip {
+  border-color: var(--dqi-accent-line);
+  color: var(--dqi-accent);
+}
+
+:root[data-theme="dark"] :is(th, td, .rating-row, .semantic-connection, .semantic-rubric, #semantic-results) {
+  border-color: var(--dqi-line);
+}
+
+@media (max-width: 1000px) {
+  :root[data-theme="dark"] .rating-row { background: var(--dqi-panel); }
+}
+
+:root[data-theme="dark"] .remove-rule:hover { background: var(--dqi-danger-bg); }
+
+/* Messages and structural audit findings */
+:root[data-theme="dark"] .message.error {
+  background: var(--dqi-danger-bg);
+  border-color: var(--dqi-danger-line);
+  color: var(--dqi-danger);
+}
+
+:root[data-theme="dark"] :is(.message.success, .message.busy, #desktop-shortcut:disabled) {
+  background: var(--dqi-success-bg);
+  border-color: var(--dqi-accent-line);
+  color: var(--dqi-success);
+}
+
+:root[data-theme="dark"] .spinner {
+  border-color: var(--dqi-accent-line);
+  border-top-color: var(--dqi-accent);
+}
+
+:root[data-theme="dark"] .status-badge {
+  background: var(--dqi-success-bg);
+  color: var(--dqi-success);
+}
+
+:root[data-theme="dark"] :is(.status-badge.attention, .audit-gap) {
+  background: var(--dqi-warning-bg);
+}
+
+:root[data-theme="dark"] .status-badge.attention { color: var(--dqi-warning); }
+:root[data-theme="dark"] .status-badge.neutral {
+  background: var(--dqi-raised);
+  color: var(--dqi-muted);
+}
+:root[data-theme="dark"] :is(.metric, .source-rating) { background: var(--dqi-panel); }
+:root[data-theme="dark"] .bar-track { background: var(--dqi-line); }
+:root[data-theme="dark"] .bar { background: var(--dqi-accent); }
+:root[data-theme="dark"] .audit-rule-source { color: var(--dqi-accent); }
+:root[data-theme="dark"] .audit-state.completed { color: var(--dqi-success); }
+:root[data-theme="dark"] :is(.audit-threshold, .source-text) { background: var(--dqi-field); }
+:root[data-theme="dark"] .audit-provenance { border-color: var(--dqi-accent-line); }
+:root[data-theme="dark"] .review-reasons li { border-left-color: var(--dqi-accent-line); }
+
+/* Answer review and evidence */
+:root[data-theme="dark"] :is(.semantic-grid label, .semantic-rubric label, #semantic-records-label, .semantic-record-status) {
+  color: var(--dqi-muted);
+}
+
+:root[data-theme="dark"] .semantic-preview { background: var(--dqi-accent-bg); }
+:root[data-theme="dark"] #semantic-progress progress { accent-color: var(--dqi-accent); }
+
+:root[data-theme="dark"] .semantic-assessment {
+  border-color: var(--dqi-line);
+  border-left-color: var(--dqi-accent);
+}
+
+:root[data-theme="dark"] .semantic-assessment.questionable { border-left-color: var(--dqi-warning); }
+:root[data-theme="dark"] :is(.semantic-assessment.insufficient_evidence, .semantic-assessment.unscored) {
+  border-left-color: var(--dqi-control-line);
+}
+
+:root[data-theme="dark"] .semantic-assessment blockquote {
+  background: var(--dqi-field);
+  border-left-color: var(--dqi-control-line);
+}
+
+:root[data-theme="dark"] dialog:not(.tour-overlay) {
+  background: var(--dqi-panel);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 45%);
+}
+
+:root[data-theme="dark"] dialog:not(.tour-overlay)::backdrop {
+  background: rgb(3 9 14 / 72%);
+}

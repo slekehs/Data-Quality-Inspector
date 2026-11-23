@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Quality Inspector</title>
+  <script src="./appearance.js"></script>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./dark.css">
+  <link rel="stylesheet" href="./walkthrough.css">
+  <link rel="stylesheet" href="./tour.css">
+  <script src="./exact-json.js" defer></script>
+  <script src="./app.js" defer></script>
+  <script src="./audit-ui.js" defer></script>
+  <script src="./rubric-import.js" defer></script>
+  <link rel="stylesheet" href="./settings.css">
+  <script src="./settings.js" defer></script>
+  <script src="./semantic-ui.js" defer></script>
+  <script src="./single-task.js" defer></script>
+  <!-- guided tour controls -->
+  <script src="./tour-stops.js" defer></script>
+  <script src="./tour-overlay.js" defer></script>
+  <script src="./guided-tour.js" defer></script>
+  <!-- end guided tour controls -->
+</head>
+<body>
+  <section id="file-help" class="card file-help" hidden aria-labelledby="file-help-title">
+    <p class="eyebrow">Data Quality Inspector</p><h1 id="file-help-title">Open your inspector</h1>
+    <p>This is the app's preview file. Your desktop shortcut opens the complete inspector automatically.</p>
+    <p><a id="open-running-inspector" class="button primary" hidden>Open inspector</a></p>
+    <p class="subtle">If the inspector is closed, double-click <strong>Data Quality Inspector</strong> on your desktop to start it.</p>
+  </section>
+  <header class="app-header">
+    <a class="brand" href="/" aria-label="Data Quality Inspector home"><span class="brand-mark" aria-hidden="true">DQ</span><span><strong>Data Quality Inspector</strong><small>Evaluation data workspace</small></span></a>
+    <div class="header-actions"><span class="session-label" id="connection">Connecting…</span>
+      <button class="button quiet" id="open-settings" type="button" aria-controls="settings-panel">Settings</button>
+      <button class="button secondary" id="desktop-shortcut" type="button" hidden>Add desktop shortcut</button><button class="button quiet" id="new-file" type="button" hidden>New inspection</button><button class="button quiet" id="open-walkthrough" type="button" aria-controls="walkthrough-panel">Walkthrough</button><button class="button quiet" id="close-app" type="button">Close inspector</button></div>
+  </header>
+  <main>
+    <div class="page-heading"><div><p class="eyebrow">Inspect with confidence</p><h1>Understand your evaluation data.</h1><p class="intro">Upload a dataset, choose its rules, and turn the results into a readable report.</p></div></div>
+    <nav class="steps" aria-label="Inspection steps">
+      <button type="button" class="step active" data-step="upload" aria-current="step"><span class="step-number">1</span><span>Upload file</span></button>
+      <span class="step-line" aria-hidden="true"></span>
+      <button type="button" class="step" data-step="checks" disabled><span class="step-number">2</span><span>Choose checks</span></button>
+      <span class="step-line" aria-hidden="true"></span>
+      <button type="button" class="step" data-step="report" disabled><span class="step-number">3</span><span>Review report</span></button>
+    </nav>
+    <div class="message error" id="error" role="alert" hidden></div>
+    <div class="message success" id="shortcut-status" role="status" aria-live="polite" hidden></div>
+    <div class="message busy" id="busy" role="status" aria-live="polite" hidden><span class="spinner" aria-hidden="true"></span><span id="busy-text">Reading your file…</span></div>
+    <section id="closed-panel" class="card result-card" hidden><h2>Inspector closed</h2><p class="subtle">You can close this tab. Double-click Data Quality Inspector.app to start a new session.</p></section>
+
+    <section id="settings-panel" class="panel" aria-labelledby="settings-title" hidden>
+      <div class="settings-heading"><h1 id="settings-title" tabindex="-1">Settings</h1><button id="settings-back" class="button secondary" type="button">Back to my work</button></div>
+      <section class="card settings-card appearance-card" aria-labelledby="appearance-title">
+        <h2 id="appearance-title">Appearance</h2>
+        <label for="appearance-choice">Color theme</label>
+        <select id="appearance-choice" aria-describedby="appearance-help">
+          <option value="system">Follow my Mac</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+        <p id="appearance-help" class="subtle">Your choice applies immediately and is saved in this browser.</p>
+      </section>
+      <section id="key-settings-card" class="card settings-card" aria-labelledby="settings-key-title">
+        <h2 id="settings-key-title">OpenAI API key</h2>
+        <p class="subtle">Save a key in this Mac’s Keychain to use it for future AI reviews. You choose when to send a review to OpenAI.</p>
+        <p id="settings-key-status" role="status" aria-live="polite">Checking Keychain…</p>
+        <form id="settings-key-form" autocomplete="off" hidden>
+          <label for="settings-key"><span id="settings-key-label">OpenAI API key</span><input id="settings-key" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" required></label>
+          <div class="settings-actions"><button id="settings-save-key" class="button primary" type="submit" disabled>Save key</button><button id="settings-remove-key" class="button secondary" type="button" hidden>Remove saved key</button></div>
+        </form>
+        <p id="settings-feedback" class="message" role="status" aria-live="polite" hidden></p>
+        <p class="small"><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">Manage keys in your OpenAI account</a> · <a href="https://developers.openai.com/api/docs/guides/chatgpt-api-credits" target="_blank" rel="noopener noreferrer">Check your subscription’s API credit benefit</a></p>
+      </section>
+    </section>
+
+    <section id="upload-panel" class="panel" aria-label="Upload a dataset">
+      <div class="upload-layout">
+        <div class="card upload-card">
+          <div class="section-heading"><div><h2>Start with a dataset</h2><p class="subtle">Choose the file that contains the AI responses and their scores.</p></div></div>
+          <div class="dropzone" id="dropzone">
+            <div class="file-illustration" aria-hidden="true"><span></span><span></span><span></span></div>
+            <h3>Drop your file here</h3><p class="subtle">or choose one from your Mac</p>
+            <label class="button primary file-picker">Choose file<input id="file-input" type="file" accept=".csv,.tsv,.json,.jsonl,.ndjson,.gz" aria-label="Choose dataset file"></label>
+            <p class="file-types">CSV · TSV · JSON · JSONL · NDJSON · GZIP</p><p class="small subtle" id="upload-limit">Up to 25 MB per file</p>
+          </div>
+          <div class="upload-options"><label for="format-select">File format</label><select id="format-select"><option value="">Detect automatically</option><option value="csv">CSV</option><option value="tsv">TSV</option><option value="json">JSON array</option><option value="jsonl">JSONL / NDJSON</option></select></div>
+          <div class="rubric-upload">
+            <h3>Have a scoring rubric?</h3>
+            <p class="small subtle">Choose it here before selecting your dataset, or add it in Choose checks. Use CSV or JSON for several fields, or TXT or Markdown for one.</p>
+            <div class="rubric-actions"><label class="button secondary file-picker">Choose rubric file<input id="upload-rubric-file" type="file" accept=".csv,.json,.txt,.md" aria-label="Choose optional rubric before uploading dataset"></label><button id="remove-staged-rubric" class="button quiet" type="button" hidden>Remove</button></div>
+            <div class="rubric-actions"><a class="text-link" href="/rubric-template.csv" download>CSV template</a><a class="text-link" href="/rubric-template.json" download>JSON template</a></div>
+            <p id="upload-rubric-status" class="small subtle" role="status"></p>
+          </div>
+        </div>
+        <aside class="upload-aside">
+          <div class="card sample-card single-task-entry">
+            <h2>Have one response to evaluate?</h2>
+            <p>Paste the prompt and AI response, then apply your own scoring rubric.</p>
+            <button class="button primary" id="open-single-task" type="button">Review one task</button>
+          </div>
+          <div class="card sample-card"><p class="eyebrow">Explore the workflow</p><h2>Try a sample first</h2><p>Six synthetic records with a missing answer, repeated pairs, conflicting scores, and invalid ratings.</p><div class="tour-entry-actions"><button class="button secondary" id="load-demo" type="button">Load demo data</button><button class="button quiet" id="start-home-tour" type="button">Start guided tour</button></div></div>
+          <div class="aside-note"><h3>Working with HelpSteer2?</h3><p>Upload <code>validation.jsonl.gz</code> directly. The five-attribute preset will be selected when its fields are found.</p></div>
+          <div class="aside-note"><h3>Local data checks</h3><p>File checks run on this Mac. Optional AI answer review sends only your selected content to OpenAI after you choose to run it. Download reports to keep a copy.</p></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="single-task-panel" class="panel" aria-labelledby="single-task-title" hidden>
+      <div class="single-task-heading">
+        <div><h1 id="single-task-title" tabindex="-1">Review one task</h1><p class="intro">Score one AI response against your rubric and see the evidence for each judgment.</p></div>
+        <button id="single-task-back" type="button" class="button secondary">Back to dataset</button>
+      </div>
+      <fieldset id="single-task-settings" class="single-task-settings">
+        <legend class="sr-only">Task evaluation settings</legend>
+        <section class="card single-task-card" aria-labelledby="single-content-title">
+          <h2 id="single-content-title">Task and response</h2>
+          <div class="single-task-text">
+            <label for="single-prompt">Prompt<textarea id="single-prompt" rows="7" placeholder="Paste the instructions given to the AI."></textarea></label>
+            <label for="single-response">AI response<textarea id="single-response" rows="7" placeholder="Paste the answer you want to evaluate."></textarea></label>
+          </div>
+          <details class="single-reference"><summary>Reference answer or evidence (optional)</summary><label for="single-reference">Reference material<textarea rows="3" id="single-reference" placeholder="Include a source passage, expected answer, or other evidence the reviewer should use."></textarea></label></details>
+        </section>
+        <section class="card single-task-card" aria-labelledby="single-rubric-heading">
+          <h2 id="single-rubric-heading">Scoring rubric</h2>
+          <p class="subtle">Use CSV or JSON for up to 12 criteria, or TXT or Markdown for one criterion.</p>
+          <div class="rubric-actions">
+            <label class="button secondary file-picker"><span id="single-rubric-action">Upload rubric</span><input id="single-rubric-file" type="file" accept=".csv,.json,.txt,.md" aria-label="Upload rubric for one task"></label>
+            <a class="text-link" href="/rubric-template.csv" download>CSV template</a><a class="text-link" href="/rubric-template.json" download>JSON template</a>
+          </div>
+          <p class="small subtle" id="single-rubric-status" role="status"></p>
+          <div id="single-rubric-criteria"></div>
+        </section>
+        <section class="card single-task-card" aria-labelledby="single-evaluate-heading">
+          <h2 id="single-evaluate-heading">Evaluate the response</h2>
+          <div class="single-task-connection">
+            <label for="single-model">Review model<select id="single-model"><option value="gpt-6.2-sol">GPT-6.2 Sol</option><option value="gpt-6.2-astra">GPT-6.2 Astra</option><option value="custom">Other model ID…</option></select></label>
+            <label for="single-custom-model" id="single-custom-label" hidden>OpenAI model ID<input id="single-custom-model" type="text" maxlength="200" autocomplete="off" spellcheck="false"></label>
+          </div>
+          <div class="semantic-actions"><button id="single-preview" type="button" class="button secondary">Preview evaluation</button><span class="small subtle">Preview runs locally and uses no API credits.</span></div>
+          <p id="single-feedback" class="message" role="status" hidden></p>
+          <div id="single-preview-result" class="semantic-preview" role="status" hidden></div>
+          <div id="single-authorize" hidden>
+            <div class="credential-choice">
+                <label id="single-key-source-label" for="single-key-source" hidden>API key source<select id="single-key-source"><option value="saved">Use saved key</option><option value="once">Enter a one-time key</option></select></label>
+                <label id="single-key-label" for="single-key">One-time OpenAI API key<input id="single-key" type="password" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+                <div id="single-key-help"><button type="button" class="text-link credential-settings-link" data-open-settings>API key settings</button></div>
+              </div>
+            <label class="checkbox-label semantic-consent"><input id="single-consent" type="checkbox">Send this prompt, response, rubric, and any reference to OpenAI using my API credits.</label>
+            <button id="single-evaluate" type="button" class="button primary" disabled>Run evaluation</button>
+          </div>
+        </section>
+      </fieldset>
+      <div id="single-task-review-host"></div>
+    </section>
+
+    <section id="checks-panel" class="panel" aria-label="Configure inspection checks" hidden>
+      <div class="file-strip"><div><span class="file-chip" aria-hidden="true">FILE</span><strong id="file-name"></strong></div><span id="file-meta" class="subtle"></span><button id="replace-file" class="button quiet" type="button">Replace file</button></div>
+      <details class="preview card"><summary>Preview the first records <span id="preview-note" class="small subtle"></span></summary><div class="table-scroll"><table id="preview-table"><thead></thead><tbody></tbody></table></div></details>
+      <section class="card rubric-card" aria-labelledby="rubric-heading">
+        <h2 id="rubric-heading">Custom scoring rubric <span class="small subtle">(optional)</span></h2>
+        <p class="subtle">Match your criteria to the score columns you want the AI to review. A rubric can also set the range and whole-number check for each column.</p>
+        <div class="rubric-actions">
+          <label class="button secondary file-picker">Choose rubric file<input id="checks-rubric-file" type="file" accept=".csv,.json,.txt,.md" aria-label="Choose rubric to match to this dataset"></label>
+          <a class="text-link" href="/rubric-template.csv" download>CSV template</a><a class="text-link" href="/rubric-template.json" download>JSON template</a>
+        </div>
+        <p class="small subtle">CSV or JSON for several fields. TXT or Markdown for one field. Maximum 256 KiB.</p>
+        <div id="rubric-applied" class="rubric-applied" hidden><p id="applied-rubric-status" role="status"></p><button id="reopen-rubric" type="button" class="button quiet">Review matches</button></div>
+        <div id="rubric-draft" hidden>
+          <h3 id="rubric-filename"></h3>
+          <div id="rubric-mappings"></div>
+          <p class="small subtle" id="rubric-mapping-status" role="status"></p>
+          <div class="rubric-actions"><button class="button primary" id="apply-rubric" type="button">Apply rubric</button><button class="button quiet" id="discard-rubric" type="button">Discard pending file</button></div>
+        </div>
+      </section>
+      <div class="card checks-card">
+        <div class="section-heading"><div><h2>Choose your checks</h2><p class="subtle">Start with a preset, then adjust the fields and rules.</p></div><label class="preset-label" for="preset-select">Preset<select id="preset-select"><option value="standard">AI evaluation · single rating</option><option value="helpsteer2">HelpSteer2 · five attributes</option><option value="custom">Custom checks</option></select></label></div>
+        <div class="shared-checks"><h3>Shared fields</h3><p class="small subtle">These checks run once per record.</p><div id="shared-fields"></div></div>
+        <div class="rating-heading"><div><h3>Rating attributes</h3><p class="small subtle">Map a column and select the rules it should follow.</p></div><button class="button secondary" id="add-rating" type="button">Add rating field</button></div>
+        <div class="rating-labels" aria-hidden="true"><span>Source column</span><span>Required</span><span>Number</span><span>Whole</span><span>Range</span><span>Minimum</span><span>Maximum</span><span></span></div>
+        <div id="rating-rules"></div>
+        <p class="small subtle rule-note">Whole-number and range checks are skipped when a value cannot be read as a number. Blank optional values are allowed.</p>
+        <section class="audit-settings" aria-labelledby="audit-settings-title">
+          <div class="section-heading"><div><h3 id="audit-settings-title">Deeper dataset audit</h3><p class="subtle">Find records worth reviewing and see the evidence behind each result.</p></div><label class="checkbox-label"><input id="audit-enabled" type="checkbox">Include audit</label></div>
+          <div id="audit-options">
+            <p class="audit-rule-source" id="audit-rule-source"></p>
+            <div class="audit-option-grid"><label>Question / prompt column<select id="audit-prompt"></select></label><div class="audit-toggles"><label class="checkbox-label"><input id="audit-duplicates" type="checkbox">Find exact repeated questions and answers</label><label class="checkbox-label"><input id="audit-conflicts" type="checkbox">Find different ratings for identical questions and answers</label></div></div>
+            <p class="small subtle">Repeated questions with different answers are allowed. These comparisons use exact text; repeated pairs are review candidates, not automatic errors.</p>
+            <h3 class="audit-subheading">Choose which source ratings to review</h3><p class="subtle">Queue a record when its existing rating is at or below your threshold. These thresholds prioritize review; they do not assign new scores.</p>
+            <div id="audit-thresholds" class="audit-thresholds"></div>
+            <h3 class="audit-subheading">Check category coverage</h3><p class="subtle">Choose a category column and the minimum number of examples you want in each group. Leave this unset when the file has no category labels.</p>
+            <div class="audit-coverage-options"><label>Category column<select id="audit-group"></select></label><label>Minimum records per category<input id="audit-minimum" type="number" min="1" step="1" value="20"></label><label>Expected category labels (optional)<textarea id="audit-expected" rows="3" placeholder="One text label per line"></textarea></label></div>
+          </div>
+        </section>
+        <div class="run-row"><p class="subtle" id="check-count"></p><button class="button primary" id="run-inspection" type="button">Run inspection</button></div>
+      </div>
+    </section>
+
+    <section id="report-panel" class="panel" aria-label="Inspection report" hidden>
+      <div class="report-heading"><div><p class="eyebrow">Inspection report</p><h2 id="report-filename"></h2><div class="result-status"><span id="status-badge" class="status-badge"></span><span id="status-text"></span></div></div><div class="report-actions"><a id="full-report" class="text-link" href="#" target="_blank" rel="noopener">Open HTML report</a><button type="button" class="button secondary" id="edit-checks">Edit checks</button><a class="button primary" id="download-bundle" href="#">Download report bundle</a></div></div>
+      <div class="report-view-toolbar">
+        <fieldset class="report-view-options">
+          <legend>Report view</legend>
+          <label><input type="radio" name="report-view" id="report-view-simple" checked> Simple</label>
+          <label><input type="radio" name="report-view" id="report-view-detailed"> Detailed</label>
+        </fieldset>
+        <span class="small subtle">Detailed includes individual records, score distributions, and AI answer review.</span>
+      </div>
+      <div id="report-metrics" class="metrics"></div>
+      <section id="report-highlights" class="card result-card" aria-labelledby="report-highlights-title" hidden>
+        <h2 id="report-highlights-title">Review highlights</h2>
+        <ul id="report-highlights-list"></ul>
+        <div class="report-highlight-actions">
+          <button type="button" class="button secondary" id="browse-review-queue" hidden>Browse records to review</button>
+          <button type="button" class="button secondary" id="browse-findings" hidden>View findings</button>
+          <button type="button" class="button secondary" id="browse-skipped" hidden>View skipped checks</button>
+        </div>
+      </section>
+      <section id="semantic-panel" class="card result-card semantic-panel" aria-labelledby="semantic-title" hidden>
+        <p class="eyebrow">Optional AI answer review</p>
+        <h2 id="semantic-title">Does the rating fit the answer?</h2>
+        <p class="subtle">Ask a model to read the question and answer against your rubric, then compare its suggested score with the existing rating. Each assessment includes an explanation and excerpts from the source. The model can be wrong; suggested scores never replace your data.</p>
+        <details id="semantic-setup" open>
+          <summary>Set up an answer review</summary>
+          <fieldset id="semantic-settings">
+            <legend class="sr-only">Answer review settings</legend>
+            <div class="semantic-grid">
+              <label for="semantic-prompt">Question column<select id="semantic-prompt"></select></label>
+              <label for="semantic-response">Answer column<select id="semantic-response"></select></label>
+              <label for="semantic-reference">Reference answer or evidence column<select id="semantic-reference"></select></label>
+            </div>
+            <p class="small subtle">A reference can help assess factual claims. This review does not browse the web or execute code. Without enough evidence, it should leave the score undecided.</p>
+            <fieldset class="semantic-scope">
+              <legend>Review scope</legend>
+              <label class="checkbox-label"><input type="radio" name="semantic-scope" id="semantic-scope-selected" checked> Selected records</label>
+              <label class="checkbox-label"><input type="radio" name="semantic-scope" id="semantic-scope-all"> Whole dataset</label>
+            </fieldset>
+            <div class="semantic-grid">
+              <label id="semantic-selection-label" for="semantic-selection">Records to examine<select id="semantic-selection"><option value="first">First records in the file</option><option value="flagged">First records in the full audit review queue</option><option value="records">Specific record numbers</option></select></label>
+              <label id="semantic-limit-label" for="semantic-limit">Maximum records<input id="semantic-limit" type="number" min="1" max="20" step="1" value="5"></label>
+              <label for="semantic-tolerance">Close-score gap (points)<input id="semantic-tolerance" type="number" min="0" step="any" value="1"></label>
+            </div>
+            <label id="semantic-records-label" for="semantic-records" hidden>Record numbers, separated by commas<input id="semantic-records" type="text" placeholder="4, 6, 18"></label>
+            <p class="small subtle">Matching scores are labeled “Supported by this reviewer.” A difference within your gap is “Close”; a larger difference is “Questionable.” These labels describe one model's comparison, not proven rating accuracy. A small selected batch cannot establish overall dataset quality.</p>
+            <h3>Rating criteria</h3><p class="small subtle" id="semantic-rubric-note"></p>
+            <div id="semantic-rubrics"></div>
+            <div class="semantic-grid semantic-connection">
+              <div class="model-picker">
+                <label for="semantic-model">Review model<select id="semantic-model"><option value="gpt-6.2-sol">GPT-6.2 Sol</option><option value="gpt-6.2-astra">GPT-6.2 Astra</option><option value="custom">Other model ID…</option></select></label>
+                <label id="semantic-custom-label" for="semantic-custom-model" hidden>OpenAI model ID<input id="semantic-custom-model" type="text" maxlength="200" autocomplete="off" spellcheck="false"></label>
+              </div>
+            </div>
+            <div id="semantic-custom-rates" hidden>
+              <p class="small subtle">Enter this model’s input and output prices in US dollars per million tokens to calculate its estimated cost.</p>
+              <div class="semantic-grid">
+                <label for="semantic-input-rate">Input price (USD per 1M tokens)<input id="semantic-input-rate" type="number" min="0" step="any" inputmode="decimal"></label>
+                <label for="semantic-output-rate">Output price (USD per 1M tokens)<input id="semantic-output-rate" type="number" min="0" step="any" inputmode="decimal"></label>
+              </div>
+            </div>
+            <div class="semantic-actions"><button id="semantic-preview" type="button" class="button secondary">Estimate review cost</button><span class="small subtle">Calculated locally before any API credits are used.</span></div>
+            <div id="semantic-preview-result" class="semantic-preview" role="status" aria-live="polite" hidden></div>
+            <div id="semantic-authorization" hidden>
+              <div class="credential-choice">
+                <label id="semantic-key-source-label" for="semantic-key-source" hidden>API key source<select id="semantic-key-source"><option value="saved">Use saved key</option><option value="once">Enter a one-time key</option></select></label>
+                <label id="semantic-key-label" for="semantic-key">One-time OpenAI API key<input id="semantic-key" type="password" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+                <div id="semantic-key-help"><button type="button" class="text-link credential-settings-link" data-open-settings>API key settings</button></div>
+              </div>
+              <label class="checkbox-label semantic-consent"><input id="semantic-consent" type="checkbox"><span id="semantic-consent-text"></span></label>
+              <button id="semantic-start" type="button" class="button primary" disabled>Confirm and start review</button>
+            </div>
+          </fieldset>
+        </details>
+        <div id="semantic-message" class="message" role="status" aria-live="polite" hidden></div>
+        <div id="semantic-progress" hidden><progress id="semantic-progress-bar" value="0" max="1" aria-label="Answer review progress"></progress><p id="semantic-progress-text" class="subtle"></p><button id="semantic-cancel" type="button" class="button secondary">Stop after current answer</button><button id="semantic-resume-poll" type="button" class="button secondary" hidden>Check review status</button><p class="small subtle">Stopping prevents the next request. The answer already being reviewed may finish and consume credits.</p></div>
+        <section id="opinion-comparison" aria-label="Second opinion comparison" hidden></section>
+        <section id="semantic-results" aria-label="AI answer review results" hidden><div class="section-heading"><div><h3 id="semantic-result-title">Answer review results</h3><p id="semantic-result-note" class="subtle"></p></div><a id="semantic-download" class="button secondary" href="#">Download answer review</a></div><div id="semantic-result-metrics" class="audit-metrics"></div><p id="semantic-result-provenance" class="small subtle"></p><nav id="semantic-result-pages" class="semantic-result-pages" aria-label="Answer review result pages" hidden></nav><div id="semantic-result-rows"></div><div class="download-links"><a id="semantic-summary" href="#" target="_blank" rel="noopener">Open answer-review summary</a><a id="semantic-csv" href="#">Answer review CSV</a><a id="semantic-json" href="#">Answer review JSON</a></div></section>
+      </section>
+      <section id="audit-report" hidden aria-label="Dataset audit and review queue">
+        <div class="card audit-overview"><p class="eyebrow">Dataset audit</p><h2 id="audit-outcome"></h2><p id="audit-outcome-note" class="subtle"></p><div id="audit-metrics" class="audit-metrics"></div><details class="audit-provenance"><summary>Where the rules and ratings came from</summary><div id="audit-provenance"></div></details></div>
+        <div class="card result-card"><div class="section-heading"><div><h2>What was checked</h2><p class="subtle">A completed check and an unavailable check are different results.</p></div></div><div id="audit-checks" class="audit-checks"></div><div id="audit-coverage"></div></div>
+        <section class="card result-card" aria-labelledby="audit-queue-title">
+          <div class="section-heading">
+            <h2 id="audit-queue-title">Records to review</h2>
+            <a class="text-link" id="download-review" href="#">Download full review queue</a>
+          </div>
+          <div class="review-filters">
+            <label>Reason<select id="audit-kind-filter"><option value="">All reasons</option></select></label>
+            <label>Attribute<select id="audit-field-filter"><option value="">All attributes</option></select></label>
+            <a class="text-link" id="download-filtered-review" hidden>Download matching records (CSV)</a>
+          </div>
+          <p class="small subtle" id="audit-download-upgrade" hidden>Reopen Data Quality Inspector from your desktop to download matching records.</p>
+          <div class="audit-queue-toolbar">
+            <p class="subtle" id="audit-queue-count" role="status" aria-atomic="true"></p>
+            <nav id="audit-queue-pager" aria-label="Review queue pages" hidden>
+              <button type="button" class="button secondary" id="audit-queue-previous" aria-controls="audit-queue">Previous</button>
+              <button type="button" class="button secondary" id="audit-queue-next" aria-controls="audit-queue">Next</button>
+            </nav>
+          </div>
+          <div id="audit-queue"></div>
+        </section>
+        <div class="card result-card" id="audit-positive-card"><h2>Higher source-score examples</h2><p class="subtle">These examples have higher existing ratings on your selected review attributes. The inspector has not independently judged their answers.</p><div id="audit-examples"></div></div>
+      </section>
+      <div class="report-details">
+      <div class="card result-card"><div class="section-heading"><div><h2>Checks by attribute</h2><p class="subtle">Valid scores satisfy every selected rule for that attribute.</p></div></div><div id="common-summary" class="common-summary"></div><div class="table-scroll"><table id="attribute-table"><thead><tr><th>Attribute</th><th>Valid / total</th><th>Missing</th><th>Nonnumeric</th><th>Noninteger</th><th>Out of range</th><th>Findings</th><th>Mean</th></tr></thead><tbody></tbody></table></div><p id="no-attributes" class="empty-state" hidden>No rating attributes were selected. Shared field checks are shown above.</p></div>
+      <div class="section-heading distribution-heading"><div><h2>Score distributions</h2><p class="subtle">Shares and averages include valid scores only. Means are rounded to two decimals.</p></div></div><div id="distributions" class="distribution-grid"></div>
+      <div class="card result-card"><div class="section-heading"><div><h2>Findings</h2><p class="subtle" id="findings-count"></p></div><label class="filter-label" for="findings-filter">Show<select id="findings-filter"><option value="all">All fields</option></select></label></div><div id="findings-empty" class="empty-state" hidden></div><div class="table-scroll" id="findings-wrap"><table id="findings-table"><thead><tr><th>Record</th><th>Field</th><th>Check</th><th>Observed value</th><th>Reason</th></tr></thead><tbody></tbody></table></div><p id="findings-truncated" class="small subtle" hidden>Showing the first 100 matching findings. Download the CSV for the complete list.</p></div>
+      <details class="card skipped-card" id="skipped-card" hidden><summary id="skipped-title">Skipped checks</summary><div class="table-scroll"><table id="skipped-table"><thead><tr><th>Record</th><th>Field</th><th>Check</th><th>Reason</th></tr></thead><tbody></tbody></table></div></details>
+      </div>
+      <div class="report-footer"><p>The data audit checks structure and configured rules. Optional AI answer review is a separate, fallible assessment with its own report.<span id="attribute-note" hidden> Higher complexity or verbosity is not inherently better.</span></p><div class="download-links"><a id="download-findings" href="#">Findings CSV</a><a id="download-json" href="#">Complete JSON</a><a id="download-text" href="#">Text summary</a></div></div>
+    </section>
+    <section id="walkthrough-panel" class="panel" aria-labelledby="walkthrough-title" hidden>
+      <div class="walkthrough-heading">
+        <div><h1 id="walkthrough-title" tabindex="-1">Walkthrough</h1>
+          <p class="intro">Take a guided tour through the Inspector with example data, or expand a topic below. You can leave the tour at any step.</p>
+          <button id="start-guided-tour" type="button" class="button primary">Start guided tour</button>
+        </div>
+        <button id="walkthrough-back" type="button" class="button secondary">Back to my work</button>
+      </div>
+
+      <section class="card guide-group" aria-labelledby="guide-task-title">
+        <h2 id="guide-task-title">Evaluate one response</h2>
+        <details class="guide-topic" open>
+          <summary>Paste a task and apply your rubric</summary>
+          <ol>
+            <li>On the upload screen, choose <strong>Review one task</strong>. Paste the original prompt and the AI’s response. If a score depends on a policy or source passage, expand <strong>Reference answer or evidence</strong> and paste it there.</li>
+            <li>Choose <strong>Upload rubric</strong>. CSV and JSON can hold up to 12 criteria. TXT and Markdown each describe one criterion. Expand a criterion to edit its wording or set its minimum, maximum, and score type.</li>
+            <li>Choose the review model and click <strong>Preview evaluation</strong>. When ready, select your key, confirm the use of API credits, and click <strong>Run evaluation</strong>.</li>
+          </ol>
+          <p class="guide-example">For example, a customer support response can earn full credit for tone and partial credit for resolution if it leaves out a required confirmation step. Give each criterion its own score definitions.</p>
+        </details>
+        <details class="guide-topic">
+          <summary>Read a score or get a second opinion</summary>
+          <p>Each criterion shows its score, the reviewer’s explanation, and quotes from the supplied material. <strong>Insufficient evidence</strong> means the reviewer could not support a score. Check the quotes against the criterion before accepting the judgment.</p>
+          <p>For another reading, expand the assessed task or dataset record and select <strong>Get a second opinion</strong>. Choose a different model and confirm the additional API request. Compare the two explanations to see where the reviewers disagree.</p>
+        </details>
+      </section>
+
+      <section class="card guide-group" aria-labelledby="guide-dataset-title">
+        <h2 id="guide-dataset-title">Inspect a dataset</h2>
+        <details class="guide-topic">
+          <summary>Upload a file or try the demo</summary>
+          <p>Drop the response file onto <strong>Upload file</strong> or use <strong>Choose file</strong>. The Inspector accepts CSV, TSV, JSON arrays, JSONL, NDJSON, and their gzip-compressed versions. In <strong>Choose checks</strong>, expand <strong>Preview the first records</strong> to confirm the column names and values.</p>
+          <p>To learn with an example, choose <strong>Load demo data</strong>. Its six records include a missing answer, conflicting ratings, and an out-of-range score.</p>
+        </details>
+        <details class="guide-topic">
+          <summary>Match criteria and choose scoring rules</summary>
+          <p>Start with the appropriate preset under <strong>Choose your checks</strong>. Under <strong>Shared fields</strong>, select the columns containing the response, ID, or explanation you want to check. Under <strong>Rating attributes</strong>, choose the score columns and specify which values are required, numeric, whole, or within a range.</p>
+          <p>For a custom rubric, click <strong>Choose rubric file</strong>. Review each proposed score column and scale, correct any match or skip the criterion, then click <strong>Apply rubric</strong>. For example, you can match a criterion called <code>tone_score</code> to a column called <code>courtesy_rating</code>.</p>
+        </details>
+        <details class="guide-topic">
+          <summary>Find duplicates, conflicting ratings, and coverage gaps</summary>
+          <p>Turn on <strong>Include audit</strong> and pick the question column. Select the checks for repeated question–answer pairs and different ratings on identical pairs. To queue low source scores, set a review threshold for the relevant attribute.</p>
+          <p>Under <strong>Check category coverage</strong>, pick a category column and set a minimum count. Enter expected category names to catch groups with zero rows. Click <strong>Run inspection</strong> to run the selected checks locally.</p>
+        </details>
+        <details class="guide-topic">
+          <summary>Read findings and decide which records to inspect</summary>
+          <p>The report opens in <strong>Simple</strong> view with the outcome and highlights. Select <strong>Detailed</strong> under <strong>Report view</strong> to explore the evidence. The saved HTML summary has the same switch.</p>
+          <p><strong>Checks by attribute</strong> shows which scoring fields have missing or invalid values. <strong>Score distributions</strong> shows how valid scores are spread across each scale. Under <strong>Findings</strong>, read the rule, observed value, and reason for each flagged row.</p>
+          <p>With <strong>Include audit</strong> selected, open <strong>Records to review</strong> and filter by reason, attribute, or both. Use <strong>Next</strong> and <strong>Previous</strong> to browse the matches. Expand a record to see the original text, ratings, and suggested next steps.</p>
+          <p>Choose <strong>Download matching records (CSV)</strong> to save every matching record across all pages. <strong>Download full review queue</strong> saves every flagged record.</p>
+        </details>
+        <details class="guide-topic">
+          <summary>Check whether an existing rating fits the answer</summary>
+          <p>In <strong>Detailed</strong> view, open <strong>Does the rating fit the answer?</strong>. Choose <strong>Whole dataset</strong> for every eligible answer, or <strong>Selected records</strong> for up to 20. Choose the criteria and model, then click <strong>Estimate review cost</strong> to see the scope and estimated API spend locally.</p>
+          <p>Review the estimate, choose your API key, check the authorization box, and click <strong>Confirm and start review</strong>. The model scores each answer independently. The Inspector then compares that score with the original rating. <strong>Close</strong> means the difference falls within your chosen gap. <strong>Questionable</strong> marks a larger difference for human review.</p>
+        </details>
+      </section>
+
+      <section class="card guide-group" aria-labelledby="guide-workspace-title">
+        <h2 id="guide-workspace-title">API access and reports</h2>
+        <details class="guide-topic">
+          <summary>Save an API key and understand when credits are used</summary>
+          <p>Open <strong>Settings</strong>, enter your OpenAI API key, and click <strong>Save key</strong> to keep it in your Mac’s Keychain. Later reviews select <strong>Use saved key</strong> automatically. You can replace or remove the key in Settings, or choose a one-time key for a particular review.</p>
+          <p>File checks, dataset audits, and previews run locally. Starting an AI evaluation sends the selected prompts, responses, rubrics, and any supplied references to OpenAI and uses API credits. Each second opinion is a separate request.</p>
+          <button type="button" class="button secondary" data-open-settings>Open Settings</button>
+        </details>
+        <details class="guide-topic">
+          <summary>Download reports and reopen the Inspector</summary>
+          <p>In a dataset report, use <strong>Download report bundle</strong> to keep the full inspection. Open <code>summary.html</code> inside the ZIP for a readable report, or use <code>findings.csv</code> to work through issues row by row.</p>
+          <p>AI evaluations have their own <strong>Download answer review</strong> bundle with HTML, CSV, and JSON. Download the reports you want to keep before closing the local session. On your Mac, <strong>Add desktop shortcut</strong> gives you a direct way to reopen the app.</p>
+        </details>
+      </section>
+    </section>
+    <footer class="app-footer"><span>Data Quality Inspector</span><span>Local workspace · Original files stay unchanged</span></footer>
+  </main>
+  <dialog id="opinion-dialog" aria-labelledby="opinion-title">
+    <h2 id="opinion-title">Get a second opinion</h2>
+    <p id="opinion-scope"></p>
+    <form id="opinion-form">
+      <label for="opinion-model">Second reviewer<select id="opinion-model"></select></label>
+      <label id="opinion-custom-label" for="opinion-custom-model" hidden>OpenAI model ID<input id="opinion-custom-model" type="text" maxlength="200" autocomplete="off" spellcheck="false"></label>
+      <div class="credential-choice">
+                <label id="opinion-key-source-label" for="opinion-key-source" hidden>API key source<select id="opinion-key-source"><option value="saved">Use saved key</option><option value="once">Enter a one-time key</option></select></label>
+                <label id="opinion-key-label" for="opinion-key">One-time OpenAI API key<input id="opinion-key" type="password" autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+                <div id="opinion-key-help"><span class="small subtle">You can save a reusable key in Settings.</span></div>
+              </div>
+      <label class="checkbox-label semantic-consent"><input id="opinion-consent" type="checkbox">Send this record and its rubric to OpenAI for one additional review using my API credits.</label>
+      <div class="report-actions"><button type="button" class="button secondary" id="opinion-dismiss">Cancel</button><button type="submit" id="opinion-start" class="button primary" disabled>Review this answer</button></div>
+    </form>
+  </dialog>
+  <dialog id="close-dialog" aria-labelledby="close-dialog-title"><h2 id="close-dialog-title">Close this local session?</h2><p>Download any reports you want to keep first. Closing clears temporary uploads and reports. Your original files stay unchanged.</p><div class="report-actions"><button type="button" class="button secondary" id="cancel-close">Keep working</button><button type="button" class="button primary" id="confirm-close">Close session</button></div></dialog>
+</body>
+</html>

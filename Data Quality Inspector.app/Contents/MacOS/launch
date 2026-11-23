@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+# Resolve the app directory before walking up, including a Desktop app symlink.
+EXECUTABLE_DIR=$(CDPATH= cd -P -- "$(dirname -- "$0")" && pwd -P)
+PROJECT_DIR=$(CDPATH= cd -P -- "$EXECUTABLE_DIR/../../.." && pwd -P)
+PREFERRED_PYTHON='/Library/Frameworks/Python.framework/Versions/3.13/bin/python3'
+
+if [ -x "$PREFERRED_PYTHON" ]; then
+    exec "$PREFERRED_PYTHON" "$PROJECT_DIR/launch_gui.py"
+fi
+
+PYTHON_BIN=$(command -v python3 || true)
+if [ -n "$PYTHON_BIN" ] && "$PYTHON_BIN" -c 'import sys; raise SystemExit(sys.version_info < (3, 11))'; then
+    exec "$PYTHON_BIN" "$PROJECT_DIR/launch_gui.py"
+fi
+
+mkdir -p "$PROJECT_DIR/runtime"
+printf '%s\n' 'Data Quality Inspector needs Python 3.11 or newer. No compatible Python executable was found.' >> "$PROJECT_DIR/runtime/server.log"
+exit 1

@@ -1,0 +1,3 @@
+field,description,min,max,integer
+resolution_score,"How fully does the reply resolve the customer's request? Score 0 if it gives no relevant solution or next step. Score 1 if it gives a useful step but leaves part of the request unanswered. Score 2 if it gives a complete solution or all the next steps the customer needs to proceed.",0,2,true
+tone_score,"How respectfully does the reply address the customer? Score 1 if it blames, mocks, or dismisses the customer. Score 2 if it stays civil but gives an impersonal response. Score 3 if it stays civil and acknowledges the customer's specific concern respectfully.",1,3,true

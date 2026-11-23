@@ -1,0 +1,2 @@
+record,source_line,field,value,value_type,field_present,rule,reason,related_records
+5,6,rating,good,string,true,range,Range was not evaluated because the value is not a finite number.,

@@ -1,0 +1,103 @@
+{
+  "status": "issues_found",
+  "input_format": "csv",
+  "total_records": 6,
+  "affected_records": 5,
+  "finding_count": 5,
+  "skipped_check_count": 1,
+  "config": {
+    "columns": {
+      "evaluation_id": "evaluation_id",
+      "response": "response",
+      "rating": "rating",
+      "explanation": "explanation"
+    },
+    "required": [
+      "evaluation_id",
+      "response",
+      "rating"
+    ],
+    "unique_id": true,
+    "numeric_rating": true,
+    "rating_range": [
+      1,
+      5
+    ]
+  },
+  "findings": [
+    {
+      "record": 1,
+      "source_line": 2,
+      "field": "evaluation_id",
+      "value": "A01",
+      "rule": "unique",
+      "reason": "ID must be unique; matching data records: 1, 4.",
+      "related_records": [
+        1,
+        4
+      ],
+      "field_present": true,
+      "value_type": "string"
+    },
+    {
+      "record": 2,
+      "source_line": 3,
+      "field": "response",
+      "value": "",
+      "rule": "required",
+      "reason": "A value is required.",
+      "related_records": [],
+      "field_present": true,
+      "value_type": "string"
+    },
+    {
+      "record": 3,
+      "source_line": 4,
+      "field": "rating",
+      "value": "9",
+      "rule": "range",
+      "reason": "Expected a value from 1 to 5, inclusive.",
+      "related_records": [],
+      "field_present": true,
+      "value_type": "string"
+    },
+    {
+      "record": 4,
+      "source_line": 5,
+      "field": "evaluation_id",
+      "value": "A01",
+      "rule": "unique",
+      "reason": "ID must be unique; matching data records: 1, 4.",
+      "related_records": [
+        1,
+        4
+      ],
+      "field_present": true,
+      "value_type": "string"
+    },
+    {
+      "record": 5,
+      "source_line": 6,
+      "field": "rating",
+      "value": "good",
+      "rule": "numeric",
+      "reason": "Expected a finite number.",
+      "related_records": [],
+      "field_present": true,
+      "value_type": "string"
+    }
+  ],
+  "skipped_checks": [
+    {
+      "record": 5,
+      "source_line": 6,
+      "field": "rating",
+      "value": "good",
+      "rule": "range",
+      "reason": "Range was not evaluated because the value is not a finite number.",
+      "related_records": [],
+      "field_present": true,
+      "value_type": "string"
+    }
+  ]
+}

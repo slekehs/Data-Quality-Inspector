@@ -1,0 +1,7 @@
+{
+  "columns": {"rating": "helpfulness"},
+  "required": ["response", "rating"],
+  "unique_id": false,
+  "numeric_rating": true,
+  "rating_range": [0, 4]
+}

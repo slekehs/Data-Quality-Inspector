@@ -1,0 +1,6 @@
+record,source_line,field,value,value_type,field_present,rule,reason,related_records
+1,2,evaluation_id,A01,string,true,unique,"ID must be unique; matching data records: 1, 4.",1;4
+2,3,response,,string,true,required,A value is required.,
+3,4,rating,9,string,true,range,"Expected a value from 1 to 5, inclusive.",
+4,5,evaluation_id,A01,string,true,unique,"ID must be unique; matching data records: 1, 4.",1;4
+5,6,rating,good,string,true,numeric,Expected a finite number.,

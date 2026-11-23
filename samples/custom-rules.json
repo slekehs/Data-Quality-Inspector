@@ -1,0 +1,12 @@
+{
+  "columns": {
+    "evaluation_id": "review_id",
+    "response": "answer",
+    "rating": "score",
+    "explanation": "notes"
+  },
+  "required": ["evaluation_id", "response", "rating"],
+  "unique_id": true,
+  "numeric_rating": true,
+  "rating_range": [1, 10]
+}

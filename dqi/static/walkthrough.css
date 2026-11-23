@@ -1,0 +1,85 @@
+.walkthrough-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.walkthrough-heading .intro {
+  max-width: 68ch;
+  margin-top: .6rem;
+}
+
+.walkthrough-heading .button {
+  flex-shrink: 0;
+}
+
+.guide-group {
+  margin-bottom: 1rem;
+  padding: 1.4rem 1.6rem;
+}
+
+.guide-group h2 {
+  margin-bottom: .65rem;
+}
+
+.guide-topic {
+  border-top: 1px solid var(--border);
+}
+
+.guide-topic summary {
+  padding: .95rem 0;
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.guide-topic summary::marker {
+  color: var(--teal);
+}
+
+.guide-topic summary:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.guide-topic p,
+.guide-topic ol {
+  max-width: 75ch;
+  margin: 0 0 .9rem;
+  line-height: 1.6;
+}
+
+.guide-topic ol {
+  padding-left: 1.6rem;
+}
+
+.guide-topic li + li {
+  margin-top: .55rem;
+}
+
+.guide-topic .guide-example {
+  padding: .65rem .9rem;
+  border-left: 3px solid var(--teal);
+  background: #f4f9f8;
+}
+
+:root[data-theme="dark"] .guide-topic .guide-example {
+  background: var(--teal-soft);
+}
+
+.guide-topic .button {
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 640px) {
+  .walkthrough-heading {
+    flex-direction: column;
+    gap: .8rem;
+  }
+
+  .guide-group {
+    padding: 1.1rem;
+  }
+}

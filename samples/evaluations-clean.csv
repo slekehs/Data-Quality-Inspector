@@ -1,0 +1,7 @@
+evaluation_id,response,rating,explanation
+A01,The total is 42.,4,Minor omission.
+A02,The total is 21.,3,Mostly correct.
+A03,See attached.,5,Excellent.
+A06,The total is 43.,4,Minor omission.
+A04,Approved.,4,Correct.
+A05,Paris.,5,Correct.
